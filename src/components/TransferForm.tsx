@@ -49,7 +49,7 @@ const TransferForm = ({ accounts, onTransfer, onCancel }: TransferFormProps) => 
       setConversionRate(null);
       setConvertedAmount(null);
     }
-  }, [formData.fromAccountId, formData.toAccountId, formData.amount]);
+  }, [formData.fromAccountId, formData.toAccountId, formData.amount, sourceAccount, destinationAccount]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -248,7 +248,7 @@ const TransferForm = ({ accounts, onTransfer, onCancel }: TransferFormProps) => 
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+              className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={Object.keys(errors).length > 0}
             >
               <Send className="w-4 h-4" />
