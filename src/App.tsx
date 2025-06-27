@@ -161,7 +161,14 @@ const App = () => {
         {/* Transaction history */}
         <TransactionHistory transactions={transactions} />
 
-        
+        {/* Transfer Form Modal */}
+        {showTransferForm && (
+          <TransferForm
+            accounts={accounts}
+            onTransfer = {handleTransfer}
+            onCancel={() => setShowTransferForm(false)}
+          />
+        )}
       </div>
     </div>
   )
