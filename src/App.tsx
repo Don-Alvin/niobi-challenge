@@ -159,6 +159,9 @@ const App = () => {
         </div>
 
         {/* Transaction history */}
+        <TransactionHistory transactions={transactions} />
+
+        
       </div>
     </div>
   )
