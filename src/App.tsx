@@ -5,17 +5,8 @@ import AccountCard from "./components/AccountCard";
 import TransactionHistory from "./components/TransactionHistory";
 import TransferForm from "./components/TransferForm";
 
-// FX Rates
-const FX_RATES = {
-  KES_USD: 0.0077,
-  USD_KES: 129.78,
-  NGN_USD: 0.00067,
-  USD_NGN: 1500.23,
-  KES_NGN: 11.56,
-  NGN_KES: 0.087
-} as const;
 
-// Acount data
+// Account data
 const initialAccounts: Account[] = [
   { id: '1', name: 'Mpesa_KES_1', currency: 'KES', balance: 125000.50 },
   { id: '2', name: 'Mpesa_KES_2', currency: 'KES', balance: 89750.25 },
@@ -36,29 +27,19 @@ const App = () => {
 
   // Updated handleTransfer function
   const handleTransfer = (transferData: TransferFormData) => {
-    const sourceAccount = accounts.find(acc => acc.id === transferData.fromAccountId);
-    const destinationAccount = accounts.find(acc => acc.id === transferData.toAccountId);
-    
+    const sourceAccount = accounts.find(acc => acc.id == transferData.fromAccountId);
+    const destinationAccount = accounts.find(acc => acc.id = transferData.toAccountId);
+
     if (!sourceAccount || !destinationAccount) return;
-
-    const amount = parseFloat(transferData.amount);
-    let destinationAmount = amount;
-
-    // Handle currency conversion if needed
-    if (sourceAccount.currency !== destinationAccount.currency) {
-      const rateKey = `${sourceAccount.currency}_${destinationAccount.currency}` as keyof typeof FX_RATES;
-      destinationAmount = amount * FX_RATES[rateKey];
-    }
+    const amount = parseFloat(transferData.amount)
 
     // Update account balances
     setAccounts(prev => prev.map(account => {
-      if (account.id === transferData.fromAccountId) {
-        // Deduct exact amount from source
-        return { ...account, balance: account.balance - amount };
+      if(account.id == transferData.fromAccountId){
+        return {...account, balance: account.balance - amount}
       }
-      if (account.id === transferData.toAccountId) {
-        // Add converted amount to destination
-        return { ...account, balance: account.balance + destinationAmount };
+      if (account.id === transferData.toAccountId){
+        return {...account, balance: account.balance + amount}
       }
       return account;
     }));
@@ -69,18 +50,12 @@ const App = () => {
       fromAccountId: transferData.fromAccountId,
       toAccountId: transferData.toAccountId,
       amount,
-      currency: sourceAccount.currency,
-      convertedAmount: sourceAccount.currency !== destinationAccount.currency 
-        ? destinationAmount 
-        : undefined,
-      note: transferData.note,
-      timestamp: new Date(),
-      fromAccountName: sourceAccount.name,
-      toAccountName: destinationAccount.name,
-      rate: sourceAccount.currency !== destinationAccount.currency
-        ? FX_RATES[`${sourceAccount.currency}_${destinationAccount.currency}` as keyof typeof FX_RATES]
-        : undefined
-    };
+        currency: sourceAccount.currency,
+        note: transferData.note,
+        timestamp: new Date(),
+        fromAccountName: sourceAccount.name,
+        toAccountName: destinationAccount.name
+      };
 
     setTransactions(prev => [newTransaction, ...prev]);
     setShowTransferForm(false);
@@ -97,9 +72,9 @@ const App = () => {
 
   const totals = getTotalsByCurrency();;
 
-  return(
+  return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-W-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -109,12 +84,12 @@ const App = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Treasury Movement Simulator</h1>
-                <p className="text-gray-600">Manage virtual accounts accross multiple currencies</p>
+                <p className="text-gray-600">Manage virtual accounts across multiple currencies</p>
               </div>
             </div>
             <button
               onClick={() => setShowTransferForm(true)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex flex-items-center space-x-2 shadow=lg hover:shadow-xl"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 shadow-lg hover:shadow-xl"
             >
               <Plus className="w-5 h-5" />
               <span>New Transfer</span>
@@ -129,7 +104,7 @@ const App = () => {
               <div>
                 <p className="text-gray-600 text-sm font-medium">Total KES</p>
                 <p className="text-2xl font-bold text-emerald-600">
-                  Ksh{totals.KES.toLocaleString(undefined, {minimumFractionDigits: 2})}
+                  Ksh {totals.KES.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div className="p-3 bg-emerald-50 rounded-lg">
@@ -142,12 +117,12 @@ const App = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium">Total USD</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  KSh {totals.USD.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                <p className="text-2xl font-bold text-blue-600">
+                  $ {totals.USD.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-emerald-600" />
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <TrendingUp className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
@@ -156,23 +131,22 @@ const App = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-gray-600 text-sm font-medium">Total NGN</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  KSh {totals.NGN.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                <p className="text-2xl font-bold text-purple-600">
+                  ₦ {totals.NGN.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </p>
               </div>
-              <div className="p-3 bg-emerald-50 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-emerald-600" />
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <TrendingUp className="w-6 h-6 text-purple-600" />
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Accounts Grid */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-6">
-            <Activity className="w-5 h-5 text-gray-" />
-            <h2 className="text-xl font-semi-bold text-gray-900">Virtual Accounts</h2>
+            <Activity className="w-5 h-5 text-gray-600" />
+            <h2 className="text-xl font-semibold text-gray-900">Virtual Accounts</h2>
             <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded-full text-sm">
               {accounts.length} accounts
             </span>
@@ -192,13 +166,13 @@ const App = () => {
         {showTransferForm && (
           <TransferForm
             accounts={accounts}
-            onTransfer = {handleTransfer}
+            onTransfer={handleTransfer}
             onCancel={() => setShowTransferForm(false)}
           />
         )}
       </div>
     </div>
-  )
+  );
 };
 
-export default App
+export default App;
