@@ -15,6 +15,8 @@ export interface Transaction {
     timestamp: Date;
     fromAccountName: string;
     toAccountName: string;
+    rate?: number;
+    convertedAmount?: number;
 }
 
 export interface TransferFormData {

@@ -5,6 +5,15 @@ import AccountCard from "./components/AccountCard";
 import TransactionHistory from "./components/TransactionHistory";
 import TransferForm from "./components/TransferForm";
 
+// FX Rates
+const FX_RATES = {
+  KES_USD: 0.0077,
+  USD_KES: 129.78,
+  NGN_USD: 0.00067,
+  USD_NGN: 1500.23,
+  KES_NGN: 11.56,
+  NGN_KES: 0.087
+} as const;
 
 // Acount data
 const initialAccounts: Account[] = [
@@ -23,52 +32,70 @@ const initialAccounts: Account[] = [
 const App = () => {
   const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [showTransferForm, setShowTransferForm] = useState(false)
+  const [showTransferForm, setShowTransferForm] = useState(false);
 
+  // Updated handleTransfer function
   const handleTransfer = (transferData: TransferFormData) => {
-    const sourceAccount = accounts.find(acc => acc.id == transferData.fromAccountId);
-    const destinationAccount = accounts.find(acc => acc.id = transferData.toAccountId);
-
+    const sourceAccount = accounts.find(acc => acc.id === transferData.fromAccountId);
+    const destinationAccount = accounts.find(acc => acc.id === transferData.toAccountId);
+    
     if (!sourceAccount || !destinationAccount) return;
-    const amount = parseFloat(transferData.amount)
+
+    const amount = parseFloat(transferData.amount);
+    let destinationAmount = amount;
+
+    // Handle currency conversion if needed
+    if (sourceAccount.currency !== destinationAccount.currency) {
+      const rateKey = `${sourceAccount.currency}_${destinationAccount.currency}` as keyof typeof FX_RATES;
+      destinationAmount = amount * FX_RATES[rateKey];
+    }
 
     // Update account balances
     setAccounts(prev => prev.map(account => {
-      if(account.id == transferData.fromAccountId){
-        return {...account, balance: account.balance - amount}
+      if (account.id === transferData.fromAccountId) {
+        // Deduct exact amount from source
+        return { ...account, balance: account.balance - amount };
       }
-      if (account.id === transferData.toAccountId){
-        return {...account, balance: account.balance + amount}
+      if (account.id === transferData.toAccountId) {
+        // Add converted amount to destination
+        return { ...account, balance: account.balance + destinationAmount };
       }
       return account;
-    }));  
+    }));
 
-    // Add transaction record
+    // Create transaction record
     const newTransaction: Transaction = {
       id: Date.now().toString(),
       fromAccountId: transferData.fromAccountId,
       toAccountId: transferData.toAccountId,
       amount,
-        currency: sourceAccount.currency,
-        note: transferData.note,
-        timestamp: new Date(),
-        fromAccountName: sourceAccount.name,
-        toAccountName: destinationAccount.name
-      };
+      currency: sourceAccount.currency,
+      convertedAmount: sourceAccount.currency !== destinationAccount.currency 
+        ? destinationAmount 
+        : undefined,
+      note: transferData.note,
+      timestamp: new Date(),
+      fromAccountName: sourceAccount.name,
+      toAccountName: destinationAccount.name,
+      rate: sourceAccount.currency !== destinationAccount.currency
+        ? FX_RATES[`${sourceAccount.currency}_${destinationAccount.currency}` as keyof typeof FX_RATES]
+        : undefined
+    };
 
-      setTransactions(prev => [newTransaction, ...prev]);
-      setShowTransferForm(false)
+    setTransactions(prev => [newTransaction, ...prev]);
+    setShowTransferForm(false);
   };
 
+  // Rest of your existing App component remains the same
   const getTotalsByCurrency = () => {
-    const totals = {KES: 0, USD: 0, NGN: 0};
+    const totals = { KES: 0, USD: 0, NGN: 0 };
     accounts.forEach(account => {
       totals[account.currency] += account.balance;
-    })
+    });
     return totals;
-  }
+  };
 
-  const totals = getTotalsByCurrency();
+  const totals = getTotalsByCurrency();;
 
   return(
     <div className="min-h-screen bg-gray-50">
